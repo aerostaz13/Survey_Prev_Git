@@ -425,7 +425,7 @@
         <input
     type="hidden"
     name="_next"
-    value="https://aerostaz13.github.io/thank-you"
+    value="https://aerostaz13.github.io/thank-you/thank_you.html"
     >
 
     <input
@@ -588,7 +588,7 @@
     payload.set("_replyto", form._replyto.value);
     payload.set("country", form.country.value);
     payload.set("products",   JSON.stringify(productsData));
-    payload.set("_next",      "https://aerostaz13.github.io/thank-you");
+    payload.set("_next",      "https://aerostaz13.github.io/thank-you/thank_you.html");
 
     fetch(form.action, {
         method: "POST",
