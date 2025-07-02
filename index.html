@@ -598,8 +598,7 @@
     })
     .then(r => {
         if (r.ok) {
-        const nextUrl = form.querySelector('input[name="_next"]').value;
-        window.location.href = nextUrl;
+        window.location.href = "https://aerostaz13.github.io/thank-you/thank_you.html";
         } else {
         return r.json().then(j => { throw new Error(j.error); });
         }
