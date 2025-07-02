@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <title>Prévisions de Commande</title>
+  <style>
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; background-color: whitesmoke; }
+    .incomplete-box { background-color: orange; }
+    .monthly-input { display: none; }
+  
+  body, input, button, label, table {
+    font-family: 'Inter', sans-serif; /* or Rubik, Nunito, etc. */
+  }
+  
+  body{
+    background-color: #D6EFFF;
+  }
+  
+  input[type="text"],
+  input[type="number"],
+  .input {
+    background-color: #ffffff;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px;
+    position: relative;
+    margin-top: 15px;
+  }
+  header h1 {
+    font-family: 'Inter', sans-serif;
+    font-size: 3rem;
+    font-weight: 600;
+  }
+  header img {
+    height: 60px;
+    object-fit: contain;
+    position: static;
+    margin-left: auto;
+    top: 10px;
+    right: 50px;
+    height: 300px;
+    width: 300px;
+  }
+
+
+  .wave-group {
+    position: relative;
+    margin-bottom: 30px;
+    margin: 20px;
+  }
+
+  .wave-group .input {
+    font-size: 16px;
+    padding: 10px 10px 10px 5px;
+    display: block;
+    width: 200px;
+    border: none;
+    border-bottom: 1px solid #515151;
+    background: #EBEBFF;
+  }
+
+  .wave-group .input:focus {
+    outline: none;
+  }
+
+  .wave-group .label {
+    color: #999;
+    font-size: 18px;
+    font-weight: normal;
+    position: absolute;
+    pointer-events: none;
+    left: 5px;
+    top: 10px;
+    display: flex;
+  }
+
+  .wave-group .label-char {
+    transition: 0.2s ease all;
+    transition-delay: calc(var(--index) * .05s);
+  }
+
+  .wave-group .input:focus ~ label .label-char,
+  .wave-group .input:valid ~ label .label-char {
+    transform: translateY(-20px);
+    font-size: 14px;
+    color: #5264AE;
+  }
+
+  .wave-group .bar {
+    position: relative;
+    display: block;
+    width: 200px;
+  }
+
+  .wave-group .bar:before, .wave-group .bar:after {
+    content: '';
+    height: 2px;
+    width: 0;
+    bottom: 1px;
+    position: absolute;
+    background: #5264AE;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+  }
+
+  .wave-group .bar:before {
+    left: 50%;
+  }
+
+  .wave-group .bar:after {
+    right: 50%;
+  }
+
+  .wave-group .input:focus ~ .bar:before,
+  .wave-group .input:focus ~ .bar:after {
+    width: 50%;
+  }
+
+  .custom-checkbox {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    font-size: 16px;
+    color: #333;
+    transition: color 0.3s;
+  }
+
+  .custom-checkbox input[type="checkbox"] {
+    display: none;
+  }
+
+  .custom-checkbox .checkmark {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #333;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    transition: background-color 0.3s, border-color 0.3s, transform 0.3s;
+    transform-style: preserve-3d;
+  }
+
+  .custom-checkbox .checkmark::before {
+    content: "\2713";
+    font-size: 16px;
+    color: transparent;
+    transition: color 0.3s, transform 0.3s;
+  }
+
+  .custom-checkbox input[type="checkbox"]:checked + .checkmark {
+    background-color: #333;
+    border-color: #333;
+    transform: scale(1.1) rotateZ(360deg) rotateY(360deg);
+  }
+
+  .custom-checkbox input[type="checkbox"]:checked + .checkmark::before {
+    color: #fff;
+  }
+
+  .custom-checkbox:hover {
+    color: #666;
+  }
+
+  .custom-checkbox:hover .checkmark {
+    border-color: #666;
+    background-color: #f0f0f0;
+    transform: scale(1.05);
+  }
+
+  .custom-checkbox input[type="checkbox"]:focus + .checkmark {
+    box-shadow: 0 0 3px 2px rgba(0, 0, 0, 0.2);
+    outline: none;
+  }
+
+  .custom-checkbox .checkmark,
+  .custom-checkbox input[type="checkbox"]:checked + .checkmark {
+    transition: background-color 1.3s, border-color 1.3s, color 1.3s, transform 0.3s;
+  }
+
+  .input {
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #555;
+    outline: none;
+  }
+
+  .input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+
+
+  button {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    color: white;
+    padding: 1em 2em;
+    border: none;
+    border-radius: .6rem;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    width: 15%;
+  }
+
+  button span:not(:nth-child(6)) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+    transition: .6s ease;
+  }
+
+  button span:nth-child(6) {
+    position: relative;
+  }
+
+  button span:nth-child(1) {
+    transform: translate(-3.3em, -4em);
+  }
+
+  button span:nth-child(2) {
+    transform: translate(-6em, 1.3em);
+  }
+
+  button span:nth-child(3) {
+    transform: translate(-.2em, 1.8em);
+  }
+
+  button span:nth-child(4) {
+    transform: translate(3.5em, 1.4em);
+  }
+
+  button span:nth-child(5) {
+    transform: translate(3.5em, -3.8em);
+  }
+
+  button:hover span:not(:nth-child(6)) {
+    transform: translate(-50%, -50%) scale(4);
+    transition: 1.5s ease;
+  }
+
+  .submit-button {
+  background-color: #28a745; /* green */
+}
+
+.submit-button span:not(:nth-child(6)) {
+  background-color: #218838; /* darker green for effect */
+}
+
+.reset-button {
+  background-color: #dc3545; /* red */
+}
+
+.reset-button span:not(:nth-child(6)) {
+  background-color: #c82333; /* darker red */
+}
+
+
+
+  .form-description {
+    font-size: 1rem;
+    margin-bottom: 1.5em;
+    margin: 20px;
+  }
+
+  .monthly-input {
+  display: none;
+  gap: 5px;              /* écart entre chaque mois */
+  flex-wrap: wrap;       /* si espace réduit, passe à la ligne */
+}
+
+.month-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.month-box label {
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.name-row {
+  display: flex;
+  gap: 5px;          /* espace entre Prénom et Name */
+  flex-wrap: wrap;     /* retombe à la ligne si pas assez large */
+  margin-bottom: 1.5rem;
+}
+
+.country-row {
+  display: flex;
+  gap: 5px;          /* espace entre Prénom et Name */
+  flex-wrap: wrap;     /* retombe à la ligne si pas assez large */
+  margin-bottom: 1.5rem;
+  
+}
+
+#image-tooltip {
+  position: absolute;
+  display: none;
+  pointer-events: none;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 1000;
+
+  /* max-size constraints */
+  max-width: 300px;
+  max-height: 200px;
+  /* note: no overflow:hidden here, so the image can't be clipped */
+}
+
+#image-tooltip img {
+  display: block;
+  /* scale down to fit the container, but never exceed it */
+  max-width: 100%;
+  max-height: 100%;
+  /* let the browser pick the right width/height to preserve aspect ratio */
+  width: auto;
+  height: auto;
+}
+
+
+
+
+
+
+
+  
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Formulaire de Prévisions de Commande</h1>
+    <img src="picture/logo_LOBS.png" alt = "Logo LOBS International Health"> 
+  </header>
+  <form id="survey-form" style="margin-top: 20px;" action="https://formspree.io/f/xwpbokkq" method="POST">
+    <p class="form-description">
+    Chers partenaires,<br>
+    Afin de mieux anticiper vos besoins et garantir la disponibilité de nos produits, merci de renseigner vos prévisions de commandes annuelles. Vous pouvez indiquer un volume global ou, pour les produits à forte saisonnalité, détailler vos besoins mois par mois en cochant la case « Décomposer par mois ».<br><br>
+    Chaque quantité annuelle ou mensuelle se convertit automatiquement en nombre de cartons (colonne de droite). Les valeurs non entières signalent un besoin partiel : n’hésitez pas à ajuster vos prévisions pour obtenir un nombre de cartons entier.<br><br>
+    Toutes les quantités saisies sont exprimées en UNITÉS DE BASE (bolus, flacons, sachets…).<br><br>
+    Une fois tous les champs complétés, cliquez sur <strong>Envoyer</strong> pour nous transmettre vos estimations. Nous vous remercions de votre collaboration et restons à votre disposition pour toute question.
+    </p>
+
+    <div class ="name-row">
+      <div class="wave-group">
+        <input type="text" class="input" name="clientSurname" required>
+        <span class="bar"></span>
+        <label class="label">
+          <span class="label-char" style="--index: 0">P</span>
+          <span class="label-char" style="--index: 1">r</span>
+          <span class="label-char" style="--index: 2">é</span>
+          <span class="label-char" style="--index: 3">n</span>
+          <span class="label-char" style="--index: 4">o</span>
+          <span class="label-char" style="--index: 5">m</span>
+        </label>
+      </div>
+      <div class="wave-group">
+        <input type="text" class="input" name="clientName" required>
+        <span class="bar"></span>
+        <label class="label">
+          <span class="label-char" style="--index: 0">N</span>
+          <span class="label-char" style="--index: 1">o</span>
+          <span class="label-char" style="--index: 2">m</span>
+        </label>
+      </div>
+      <div class="wave-group">
+        <input type="text" class="input" name="country" required>
+        <span class="bar"></span>
+        <label class="label">
+          <span class="label-char" style="--index: 0">P</span>
+          <span class="label-char" style="--index: 1">a</span>
+          <span class="label-char" style="--index: 2">y</span>
+          <span class="label-char" style="--index: 3">s</span>
+        </label>
+      </div>
+          <div class="wave-group">
+        <input type="text" class="input" name="_replyto" required>
+        <span class="bar"></span>
+        <label class="label">
+          <span class="label-char" style="--index: 0">e</span>
+          <span class="label-char" style="--index: 1">m</span>
+          <span class="label-char" style="--index: 2">a</span>
+          <span class="label-char" style="--index: 3">i</span>
+          <span class="label-char" style="--index: 4">l</span>
+        </label>
+      </div>
+    </div>
+
+
+    <table id="product-table">
+      <thead>
+        <tr>
+          <th>Produit</th>
+          <th>Quantité annuelle prévue</th>
+          <th>Décomposer par mois ?</th>
+          <th>Mois (Jan - Déc)</th>
+          <th>Cartons</th>
+          <th>Qte par Carton</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <br>
+        <input
+    type="hidden"
+    name="_next"
+    value="https://aerostaz13.github.io/thank-you"
+    >
+
+    <input
+    type="hidden"
+    name="_captcha"
+    value="false"
+    >
+
+<button type = "submit" class = "submit-button">
+    <span class="circle1"></span>
+    <span class="circle2"></span>
+    <span class="circle3"></span>
+    <span class="circle4"></span>
+    <span class="circle5"></span>
+    <span class="text">Envoyer</span>
+</button>
+
+ <button type="reset" class = "reset-button">
+    <span class="circle1"></span>
+    <span class="circle2"></span>
+    <span class="circle3"></span>
+    <span class="circle4"></span>
+    <span class="circle5"></span>
+    <span class="text">Reset</span>
+  </button>
+  </form>
+  <br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <!-- tooltip popup -->
+  <div id="image-tooltip">
+    <img src="" alt="preview">
+  </div>
+
+  <script>
+    const produits = [{"ID":"ALB25V_50","Product":"ALBEN 2500 ","Presentation":"Seau de","Quantité":"50 boli","Qte_par_Carton":600},{"ID":"ALB25B_50","Product":"ALBEN 2500 ","Presentation":"Seau de","Quantité":"50 boli","Qte_par_Carton":600},{"ID":"ALB25V_5C","Product":"ALBEN 2500  vrac ","Presentation":"Seau de","Quantité":"500 boli","Qte_par_Carton":1000},{"ID":"ALB25BL_50","Product":"ALBEN 2500 BLISTER  ","Presentation":"Coffret de 5 Boîtes de 10 boli,","Quantité":"50 boli","Qte_par_Carton":500},{"ID":"ALB25_B2","Product":"ALBEN 2500 Boîte de 2 boli ","Presentation":"Coffret de 50 boîtes de 2 boli,","Quantité":"100 boli","Qte_par_Carton":600},{"ID":"ALB75_50","Product":"ALBEN 750","Presentation":"Seau de","Quantité":"50 boli","Qte_par_Carton":1000},{"ID":"ALB75_5C","Product":"ALBEN 750","Presentation":"Seau de","Quantité":"500 boli","Qte_par_Carton":1000},{"ID":"ALB30_2K","Product":"ALBEN 300","Presentation":"Seau de","Quantité":"2000 cps","Qte_par_Carton":4000},{"ID":"ALB30BL_1C","Product":"ALBEN 300 Blister","Presentation":"Coffret de 5 Boîtes de 20 boli,","Quantité":"100 cps","Qte_par_Carton":2000},{"ID":"ALB30_1C","Product":"ALBEN 300","Presentation":"Pot de","Quantité":"100 cps","Qte_par_Carton":4000},{"ID":"ALBCI_50","Product":"ALBEN CIBLE","Presentation":"Boîte de 25 pochettes de 2 boli,","Quantité":"50 boli","Qte_par_Carton":1000},{"ID":"ALB10_1L","Product":"ALBEN 10%","Presentation":"Flacon de","Quantité":"1  L","Qte_par_Carton":10},{"ID":"ANTI_1C","Product":"ANTITIC ","Presentation":"Flacon de","Quantité":"100 ml","Qte_par_Carton":100},{"ID":"ANTI_250","Product":"ANTITIC ","Presentation":"Flacon de","Quantité":"250 ml","Qte_par_Carton":40},{"ID":"ANTI_1L","Product":"ANTITIC ","Presentation":"Flacon de","Quantité":"1  L","Qte_par_Carton":10},{"ID":"BIO5_50","Product":"BIOCYCLINE 5%  ","Presentation":"Flacon de","Quantité":"50 ml","Qte_par_Carton":100},{"ID":"BIO5_1C","Product":"BIOCYCLINE 5%  ","Presentation":"Flacon de","Quantité":"100 ml","Qte_par_Carton":80},{"ID":"BIO10_50","Product":"BIOCYCLINE 10%   ","Presentation":"Flacon de","Quantité":"50 ml","Qte_par_Carton":100},{"ID":"BIO10_1C","Product":"BIOCYCLINE 10%   ","Presentation":"Flacon de","Quantité":"100 ml","Qte_par_Carton":80},{"ID":"BIO20_50","Product":"BIOCYCLINE 20%  ","Presentation":"Flacon de","Quantité":"50ml","Qte_par_Carton":100},{"ID":"BIO20_1C","Product":"BIOCYCLINE 20%  ","Presentation":"Flacon de","Quantité":"100ml","Qte_par_Carton":80},{"ID":"DELSE_20","Product":"DELTA LOBS SE ","Presentation":"Flacon de","Quantité":"20ml","Qte_par_Carton":200},{"ID":"DELSE_1C","Product":"DELTA LOBS SE ","Presentation":"Flacon de","Quantité":"100ml","Qte_par_Carton":100},{"ID":"DELSE_1L","Product":"DELTA LOBS SE ","Presentation":"Flacon de","Quantité":"1 L","Qte_par_Carton":10},{"ID":"DELPO_5C","Product":"DELTA LOBS PO ","Presentation":"Flacon double sortie de","Quantité":"500 ml","Qte_par_Carton":20},{"ID":"DISTO_1K","Product":"DISTOCUR","Presentation":"Seaux de","Quantité":"1000 boli","Qte_par_Carton":4000},{"ID":"DISTO_1C","Product":"DISTOCUR","Presentation":"Pot  de","Quantité":"100 boli","Qte_par_Carton":4000},{"ID":"DOXYL_1C","Product":"DOXYLOBS 500","Presentation":"Boîte de sachets de 100g,","Quantité":"25 sachets","Qte_par_Carton":200},{"ID":"DOXYL_1K","Product":"DOXYLOBS 500","Presentation":"Pot de","Quantité":"1 Kg","Qte_par_Carton":18},{"ID":"FERL_1C","Product":"FERLOBSTRAN B12","Presentation":"Flacon de","Quantité":"100ml","Qte_par_Carton":60},{"ID":"FORZE_GD","Product":"FORTEZEN","Presentation":"Boîte de 10 sachets de","Quantité":"23,6 g","Qte_par_Carton":500},{"ID":"FORZE_PT","Product":"FORTEZEN","Presentation":"Boîte de 10 sachets de","Quantité":"2,36 g","Qte_par_Carton":2000},{"ID":"FORZ+_GD","Product":"FORTEZEN PLUS","Presentation":"Boîte de 10 sachets de","Quantité":"25g","Qte_par_Carton":500},{"ID":"FORZ+_PT","Product":"FORTEZEN PLUS","Presentation":"Boîte de 10 sachets de","Quantité":"2,5g","Qte_par_Carton":2000},{"ID":"IVMEC_10","Product":"IVERMEC ","Presentation":"flacon de","Quantité":"10 ml","Qte_par_Carton":600},{"ID":"IVMEC_20","Product":"IVERMEC ","Presentation":"flacon de","Quantité":"20 ml","Qte_par_Carton":400},{"ID":"IVMEC_50","Product":"IVERMEC ","Presentation":"flacon plastique de","Quantité":"50 ml","Qte_par_Carton":100},{"ID":"IVMEC_1C","Product":"IVERMEC ","Presentation":"flacon plastique de","Quantité":"100 ml","Qte_par_Carton":80},{"ID":"LEV20_1C","Product":"LEVALOBS 200","Presentation":"Boîte de sachets de 100g,","Quantité":"25 sachets","Qte_par_Carton":200},{"ID":"LEV20_1K","Product":"LEVALOBS 200","Presentation":"Pot de","Quantité":"1kg","Qte_par_Carton":18},{"ID":"LOBCL_1C","Product":"LOBACALCIUM","Presentation":"Flacon de","Quantité":"100ml","Qte_par_Carton":80},{"ID":"LOBAX_1C","Product":"LOBAMAX VOLAILLE","Presentation":"Flacon de","Quantité":"100ml","Qte_par_Carton":80},{"ID":"LOBAX_5C","Product":"LOBAMAX VOLAILLE","Presentation":"Flacon de","Quantité":"500ml","Qte_par_Carton":24},{"ID":"LOBAX_5L","Product":"LOBAMAX VOLAILLE","Presentation":"Flacon de","Quantité":"5L","Qte_par_Carton":4},{"ID":"LOBAX_RPC","Product":"LOBAMAX RPC","Presentation":"Flacon de","Quantité":"500ml","Qte_par_Carton":24},{"ID":"LOBLA_CO","Product":"LOBAMIN LAYERS","Presentation":"Boîte de","Quantité":"25 sachets de 150g et 5 sachets 15g","Qte_par_Carton":120},{"ID":"LOBLA_1K","Product":"LOBAMIN LAYERS","Presentation":"Seau de","Quantité":"1kg","Qte_par_Carton":18},{"ID":"LPHEN_1C","Product":"LOBAPHEN","Presentation":"Pot  de","Quantité":"100 boli","Qte_par_Carton":400},{"ID":"LOBAINJ_1C","Product":"LOBAVIT INJECTABLE","Presentation":"Flacon de","Quantité":"100ml","Qte_par_Carton":80},{"ID":"LOBA+_15","Product":"LOBAVIT PLUS 15g","Presentation":"Boîte de 100","Quantité":"sachet de 15g","Qte_par_Carton":1000},{"ID":"LOBAV_1C","Product":"LOBAVIT VOLAILLE","Presentation":"Boîte de","Quantité":"25 sachets de 100 gr","Qte_par_Carton":200},{"ID":"LOBAV_1K","Product":"LOBAVIT VOLAILLE","Presentation":"Seau de","Quantité":"1kg","Qte_par_Carton":18},{"ID":"LOBAZ_GD","Product":"LOBAZEN","Presentation":"Boîte de 10 sachets de","Quantité":"23,6 g","Qte_par_Carton":500},{"ID":"LOBAZ_PT","Product":"LOBAZEN","Presentation":"Boîte de 10 sachets de","Quantité":"2,36 g","Qte_par_Carton":2000},{"ID":"LOBZ+_GD","Product":"LOBAZEN PLUS","Presentation":"Boîte de 10 sachets de","Quantité":"23,9 g","Qte_par_Carton":500},{"ID":"LOBZ+_PT","Product":"LOBAZEN PLUS","Presentation":"Boîte de 10 sachets de","Quantité":"2,39 g","Qte_par_Carton":2000},{"ID":"LOBIC25_1C","Product":"LOBICOX","Presentation":"Boîte de","Quantité":"25 sachets de 100 gr","Qte_par_Carton":100},{"ID":"LOBIC_1K","Product":"LOBICOX","Presentation":"Boîte de","Quantité":"10 sachets de 100 gr","Qte_par_Carton":100},{"ID":"LOBIC15_10","Product":"LOBICOX","Presentation":"Boîte de","Quantité":"100 sachets de 15 gr","Qte_par_Carton":1000},{"ID":"LOBIC10_1C","Product":"LOBICOX","Presentation":"Seaux de","Quantité":"1kg","Qte_par_Carton":18},{"ID":"LOBID_SA","Product":"LOBIDIUM","Presentation":"Boîte de 10 sachets de","Quantité":"1g","Qte_par_Carton":2000},{"ID":"LOBID+_SA","Product":"LOBIDIUM PLUS 125mg","Presentation":"Boîte de 10 sachets de","Quantité":"1g","Qte_par_Carton":2000},{"ID":"LOBIF_CO","Product":"LOBIFUGE VOLAILLE","Presentation":"Coffret de 10 boîtes de","Quantité":"100 cps","Qte_par_Carton":100},{"ID":"LVACN_40","Product":"LOBIVAC NEW","Presentation":" flacon de 40 doses, ","Quantité":"20ml","Qte_par_Carton":550},{"ID":"LVACN_1C","Product":"LOBIVAC NEW","Presentation":" flacon de 100 doses, ","Quantité":"50ml","Qte_par_Carton":232},{"ID":"LVACN_1K","Product":"LOBIVAC NEW","Presentation":" flacon de 1000 doses, ","Quantité":"500ml","Qte_par_Carton":30},{"ID":"LIVEAIN_1K","Product":"LOBIVAC AI NEW ","Presentation":" flacon de 1000 doses, ","Quantité":"250ml","Qte_par_Carton":60},{"ID":"LIVEAIN_2K","Product":"LOBIVAC AI NEW ","Presentation":" flacon de 2000 doses, ","Quantité":"500ml","Qte_par_Carton":30},{"ID":"LOBZL1_1C","Product":"LOBIZOL 1000","Presentation":"Pot  de","Quantité":"100 boli","Qte_par_Carton":400},{"ID":"LOBZL3_25K","Product":"LOBIZOL 300","Presentation":"Seaux de","Quantité":"2500 boli","Qte_par_Carton":5000},{"ID":"LOBZL3_1C","Product":"LOBIZOL 300","Presentation":"Pot  de","Quantité":"100 boli","Qte_par_Carton":4000},{"ID":"LOSPRY_21","Product":"LOBSPRAY","Presentation":"Spray de","Quantité":"210ml","Qte_par_Carton":24},{"ID":"LOBUMX_60","Product":"LOBUVIT MAXI","Presentation":"Boîte de","Quantité":"60 boli","Qte_par_Carton":960},{"ID":"LOBUMN_1C","Product":"LOBUVIT MINI","Presentation":"Boîte de","Quantité":"100 boli","Qte_par_Carton":2000},{"ID":"MAXICO_1C","Product":"MAXICOVIT","Presentation":"Coffret de 10 boîtes de","Quantité":"100 cps","Qte_par_Carton":1000},{"ID":"MAXIL25_1C","Product":"MAXI LAYER ","Presentation":"Boîte de","Quantité":"25 sachets de 100 gr","Qte_par_Carton":200},{"ID":"MAXIL100_10","Product":"MAXI LAYER ","Presentation":"Boîte de","Quantité":"10 sachets de 100 gr","Qte_par_Carton":100},{"ID":"MAXIL100_15","Product":"MAXI LAYER ","Presentation":"Boîte de","Quantité":"100 sachets de 15 gr","Qte_par_Carton":1000},{"ID":"MAXIL_1K","Product":"MAXI LAYER ","Presentation":"Seau de","Quantité":"1kg ","Qte_par_Carton":18},{"ID":"OXY50_25","Product":"OXYMEG 50 ","Presentation":"Boîte de","Quantité":"25 sachets de 100 gr","Qte_par_Carton":100},{"ID":"OXY50_1C","Product":"OXYMEG 50 ","Presentation":"Boîte de","Quantité":"10 sachets de 100 gr","Qte_par_Carton":100},{"ID":"OXY50_10","Product":"OXYMEG 50 ","Presentation":"Boîte de","Quantité":"100 sachets de 15 gr","Qte_par_Carton":1000},{"ID":"OXY50_1K","Product":"OXYMEG 50 ","Presentation":"Seau de","Quantité":"1 kg","Qte_par_Carton":18},{"ID":"PENIF_4M","Product":"PENI FORTE 4 MEGA","Presentation":" Boîte de","Quantité":"10 flacons","Qte_par_Carton":6000},{"ID":"STRE_1C","Product":"STREPEN MAXI ","Presentation":"Flacon de","Quantité":"100 ml","Qte_par_Carton":80},{"ID":"SULFA33_50","Product":"SULFA LOBS 33 ","Presentation":"Flacon de","Quantité":"50ml","Qte_par_Carton":100},{"ID":"SULFA33_1C","Product":"SULFA LOBS 33 ","Presentation":"Flacon de","Quantité":"100ml","Qte_par_Carton":80},{"ID":"SULFA33_5C","Product":"SULFA LOBS 33 ","Presentation":"Flacon de","Quantité":"500ml","Qte_par_Carton":25},{"ID":"TYDOX_1C25","Product":"TYL-DOX ","Presentation":"Boîte de","Quantité":"25 sachets de 100 gr","Qte_par_Carton":100},{"ID":"TYDOX_1C10","Product":"TYL-DOX ","Presentation":"Boîte de","Quantité":"10 sachets de 100 gr","Qte_par_Carton":100},{"ID":"TYDOX_10","Product":"TYL-DOX ","Presentation":"Boîte de","Quantité":"100 sachets de 15 gr","Qte_par_Carton":1000},{"ID":"TYDOX_1K","Product":"TYL-DOX ","Presentation":"Seau de","Quantité":"1Kg","Qte_par_Carton":18},{"ID":"TDOX_5K","Product":"TYL-DOX ","Presentation":"Seau de","Quantité":"5kg","Qte_par_Carton":4},{"ID":"TYLOF_50","Product":"TYLO FORT 200","Presentation":"Flacon de","Quantité":"50 ml","Qte_par_Carton":100},{"ID":"TYLOF_1C","Product":"TYLO FORT 200","Presentation":"Flacon de","Quantité":"100 ml","Qte_par_Carton":80}]
+
+    const tbody = document.querySelector("#product-table tbody");
+
+    const monthAbbr = ["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"];
+
+    produits.forEach((prod, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+        <td>
+          <span class="product-name" ${prod.ID ? `data-image="picture/${prod.ID}.png"` : ""}>
+            ${prod.Product} ${prod.Presentation} ${prod.Quantité}
+          </span>
+        </td>
+
+        <td><input type="number" autocomplete="off" name="annual_${index}" class="input" value="0" min="0"></td>
+        <td>
+        <label class="custom-checkbox">
+            <input type="checkbox" id="toggle_${index}">
+            <span class="checkmark"></span>
+        </label>
+        </td>
+        <td>
+          <div id="monthly_${index}" class="monthly-input">
+            ${
+              monthAbbr.map((abbr, m) => `
+                <div class="month-box">
+                  <label for="m_${index}_${m}">${abbr}</label>
+                  <input
+                    type="number"
+                    id="m_${index}_${m}"
+                    name="m_${index}_${m}"
+                    min="0"
+                    value="0"
+                    style="width: 40px"
+                  >
+                </div>
+              `).join('')
+            }
+          </div>
+        </td>
+        <td><span id="boxes_${index}">0</span></td>
+        <td>
+          <span class="Quantité-par-carton">
+            ${prod.Qte_par_Carton}
+          </span>
+        </td>
+    `;
+
+    tbody.appendChild(row);
+
+    const annualInput = row.querySelector(`[name=annual_${index}]`);
+    const monthlyDiv = row.querySelector(`#monthly_${index}`);
+    const toggle = row.querySelector(`#toggle_${index}`);
+    const boxOutput = row.querySelector(`#boxes_${index}`);
+    const quantityPerCarton = parseInt(prod["Qte_par_Carton"]);
+
+    toggle.addEventListener("change", () => {
+        monthlyDiv.style.display = toggle.checked ? "flex" : "none";
+        calculateBoxes();
+    });
+
+    const updateEvents = [annualInput, ...monthlyDiv.querySelectorAll("input")];
+    updateEvents.forEach(input => {
+        input.addEventListener("input", () => calculateBoxes());
+    });
+
+    function calculateBoxes() {
+        let total = parseInt(annualInput.value) || 0;
+
+        if (toggle.checked) {
+        total = 0;
+        monthlyDiv.querySelectorAll("input").forEach(input => {
+            total += parseInt(input.value) || 0;
+        });
+        annualInput.value = total;
+        }
+
+        const boxes = total / quantityPerCarton;
+        boxOutput.textContent = boxes.toFixed(2);
+
+        if (boxes !== Math.floor(boxes) && total !== 0) {
+        boxOutput.classList.add("incomplete-box");
+        } else {
+        boxOutput.classList.remove("incomplete-box");
+        }
+    }
+    });
+
+
+    const form = document.getElementById("survey-form");
+
+    form.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const productsData = produits.map((prod, i) => {
+    const annualVal = Number(form[`annual_${i}`].value) || 0;
+    const monthlyInputs = Array.from(
+        document.querySelectorAll(`#monthly_${i} input`)
+    );
+    const monthly = monthlyInputs.map(input => Number(input.value) || 0);
+
+    // use the toggle checkbox to decide which total to use
+    const toggle = document.getElementById(`toggle_${i}`);
+    const totalQty = toggle.checked
+        ? monthly.reduce((sum, val) => sum + val, 0)
+        : annualVal;
+
+    const perCarton = Number(prod["Quantité par carton"]);
+    const boxes = perCarton > 0
+        ? Number((totalQty / perCarton).toFixed(2))
+        : 0;
+
+    return {
+        id:      prod.ID,
+        product: prod.Product.trim(),
+        annual:  annualVal,
+        monthly: monthly,
+        boxes:   boxes
+    };
+    });
+
+
+    const payload = new FormData();
+    payload.set("clientName", form.clientName.value);
+    payload.set("clientSurname", form.clientSurname.value);
+    payload.set("_replyto", form._replyto.value);
+    payload.set("country", form.country.value);
+    payload.set("products",   JSON.stringify(productsData));
+    payload.set("_next",      "https://aerostaz13.github.io/thank-you");
+
+    fetch(form.action, {
+        method: "POST",
+        mode:   "cors",
+        headers:{ "Accept": "application/json" },
+        body:    payload
+    })
+    .then(r => {
+        if (r.ok) {
+        const nextUrl = form.querySelector('input[name="_next"]').value;
+        window.location.href = nextUrl;
+        } else {
+        return r.json().then(j => { throw new Error(j.error); });
+        }
+    })
+    .catch(err => alert("Oups : " + err.message));
+    });
+
+
+    document.getElementById("survey-form").addEventListener("reset", function() {
+    produits.forEach((_, i) => {
+        const monthlyDiv = document.getElementById(`monthly_${i}`);
+        const boxSpan    = document.getElementById(`boxes_${i}`);
+        if (monthlyDiv) monthlyDiv.style.display = "none";
+        if (boxSpan)    boxSpan.textContent   = "0.00";
+    });
+    });
+
+    const tooltip = document.getElementById("image-tooltip");
+    const tooltipImg = tooltip.querySelector("img");
+
+    document.querySelectorAll(".product-name").forEach(el => {
+      el.addEventListener("mouseenter", () => {
+        const imgSrc = el.dataset.image;
+        if (!imgSrc) return;
+        tooltipImg.src = imgSrc;
+        tooltip.style.display = "block";
+
+        // position to the right of the product name, and 10px above its top edge
+        const rect = el.getBoundingClientRect();
+        tooltip.style.left = rect.right + window.scrollX + "px";
+        tooltip.style.top  = (rect.top + window.scrollY - 300) + "px";
+      });
+
+      el.addEventListener("mouseleave", () => {
+        tooltip.style.display = "none";
+      });
+    });
+
+
+  </script>
+</body>
+</html>
